@@ -7,7 +7,7 @@ function get_git_color {
         echo -e $green
     fi
 }
-PS1="${bold_cyan}(\h)${NORMAL} \u ${bold_cyan}\w\$(get_git_color) \$(__git_ps1)${NORMAL} "
+PS1="${bold_cyan}(\h)${reset} \u ${bold_cyan}\w\$(get_git_color) \$(__git_ps1)${reset} "
 
 export CLICOLOR=1
 export LSCOLORS=cxBxDxCxegedabagacaC

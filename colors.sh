@@ -35,3 +35,4 @@ bg_light_gray="\[\033[47m\]"
 
 # RESET
 normal='\033[0m'
+reset='\033[0m\]'
