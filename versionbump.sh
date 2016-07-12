@@ -105,7 +105,9 @@ function releaseVersion() {
     echo -e "  Creating a new ${color}$versionType${normal} update. Current version is ${color}$currentVersion${normal} (previous was $previousVersion)"
 
     gitflowErrorCount=$(git flow release start ${currentVersion} 2> >(grep -c "There is an existing release branch"))
-    if [ $gitflowErrorCount -gt 0 ]
+
+    isNumber='^[0-9]+$'
+    if [[ $gitflowErrorCount =~ $isNumber ]] && [ $gitflowErrorCount -gt 0 ]
     then
         echo -e ""
         echo -e "> ${red}There is an existing release branch, finish or delete that one first.${normal}"
