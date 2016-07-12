@@ -125,13 +125,9 @@ function releaseVersion() {
         echo -e ""
         echo -e "> ${red}There is an existing release branch, finish or delete that one first.${normal}"
     else
-        # updateComposerVersion $currentVersion
-        # git add composer.*
-        # git commit -m "Bump composer version to $currentVersion"
         git tag -a $currentVersion -m "$currentVersion"
         git flow release finish ${currentVersion}
 
-        echo -e ""
         echo -e "> ${green}Pushing changes${normal}"
         git push origin master --tags
         git checkout develop
@@ -140,8 +136,4 @@ function releaseVersion() {
         echo -e ""
         echo -e "> ${green}We're at version $currentVersion now. All done.${normal}"
     fi
-}
-
-function updateComposerVersion() {
-    sed -Ei '.bak' 's/\"version\":[[:space:]]*\"[0-9]*\.?[0-9]*\.?[0-9]*\"/\"version\": \"'$1'\"/' composer.json
 }
