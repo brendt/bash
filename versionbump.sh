@@ -35,7 +35,7 @@ function bumpVersion() {
             git commit -m "Add CHANGELOG.md"
         fi
 
-        previousVersion=$(getComposerVersion)
+        previousVersion=$(getVersion)
         IFS='.' read -ra version <<< "$previousVersion"
 
         case $action in
@@ -82,8 +82,12 @@ function commitChanges() {
     git merge master
 }
 
-function getComposerVersion() {
-    echo $(cat composer.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
+function getVersion() {
+    tag=$(git describe --tag)
+    tag=${tag%-*}
+    tag=${tag%-*}
+
+    echo $tag
 }
 
 function releaseVersion() {
@@ -112,7 +116,7 @@ function releaseVersion() {
         echo -e ""
         echo -e "> ${red}There is an existing release branch, finish or delete that one first.${normal}"
     else
-        updateComposerVersion $currentVersion
+        # updateComposerVersion $currentVersion
         git add composer.*
         git commit -m "Bump composer version to $currentVersion"
         git tag -a $currentVersion -m "$currentVersion"
