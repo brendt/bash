@@ -114,7 +114,7 @@ function releaseVersion() {
     fi
 
     echo -e ""
-    echo -e "> ${green}Bumping composer${normal}"
+    echo -e "> ${green}Bumping version${normal}"
     echo -e "  Creating a new ${color}$versionType${normal} update. Current version is ${color}$currentVersion${normal} (previous was $previousVersion)"
 
     gitflowErrorCount=$(git flow release start ${currentVersion} 2> >(grep -c "There is an existing release branch"))
@@ -126,8 +126,8 @@ function releaseVersion() {
         echo -e "> ${red}There is an existing release branch, finish or delete that one first.${normal}"
     else
         # updateComposerVersion $currentVersion
-        git add composer.*
-        git commit -m "Bump composer version to $currentVersion"
+        # git add composer.*
+        # git commit -m "Bump composer version to $currentVersion"
         git tag -a $currentVersion -m "$currentVersion"
         git flow release finish ${currentVersion}
 
