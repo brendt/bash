@@ -83,11 +83,20 @@ function commitChanges() {
 }
 
 function getVersion() {
-    tag=$(git describe --tag)
-    tag=${tag%-*}
-    tag=${tag%-*}
+    gitDescribeErrorCount=$(git describe 2> >(grep -c "fatal"))
+
+    isNumber='^[0-9]+$'
+    if [[ $gitDescribeErrorCount =~ $isNumber ]] && [ $gitDescribeErrorCount -gt 0 ]
+    then
+        tag='0.0.0'
+    else
+        tag=$(git describe --tag)
+        tag=${tag%-*}
+        tag=${tag%-*}
+    fi
 
     echo $tag
+
 }
 
 function releaseVersion() {
