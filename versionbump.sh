@@ -13,6 +13,47 @@ function patch() {
     bumpVersion "patch"
 }
 
+function getVersion() {
+    gitDescribeErrorCount=$(git describe 2> >(grep -c "fatal"))
+
+    isNumber='^[0-9]+$'
+    if [[ $gitDescribeErrorCount =~ $isNumber ]] && [ $gitDescribeErrorCount -gt 0 ]
+    then
+        tag='0.0.0'
+    else
+        tag=$(git describe --tag)
+
+        IFS='.' read -ra version <<< "$tag"
+        if [ ${#version[@]} -eq 3 ]
+        then
+            tag=${tag%-*}
+            tag=${tag%-*}
+        else
+            tag='0.0.0'
+        fi
+    fi
+
+    echo $tag
+}
+
+function commitChanges() {
+    echo -e "> ${green}Updating develop${normal}"
+    git checkout develop
+    git add -A
+    git commit -m "bump"
+    git pull origin develop
+
+    echo -e ""
+    echo -e "> ${green}Updating master${normal}"
+    git checkout master
+    git pull origin master
+
+    echo -e ""
+    echo -e "> ${green}Merging master into develop${normal}"
+    git checkout develop
+    git merge master
+}
+
 function bumpVersion() {
     if [ ! -f "$versionFile" ];
     then
@@ -62,41 +103,6 @@ function bumpVersion() {
             releaseVersion $action $previousVersion $bumpedVersion
         fi
     fi
-}
-
-function commitChanges() {
-    echo -e "> ${green}Updating develop${normal}"
-    git checkout develop
-    git add -A
-    git commit -m "bump"
-    git pull origin develop
-
-    echo -e ""
-    echo -e "> ${green}Updating master${normal}"
-    git checkout master
-    git pull origin master
-
-    echo -e ""
-    echo -e "> ${green}Merging master into develop${normal}"
-    git checkout develop
-    git merge master
-}
-
-function getVersion() {
-    gitDescribeErrorCount=$(git describe 2> >(grep -c "fatal"))
-
-    isNumber='^[0-9]+$'
-    if [[ $gitDescribeErrorCount =~ $isNumber ]] && [ $gitDescribeErrorCount -gt 0 ]
-    then
-        tag='0.0.0'
-    else
-        tag=$(git describe --tag)
-        tag=${tag%-*}
-        tag=${tag%-*}
-    fi
-
-    echo $tag
-
 }
 
 function releaseVersion() {
