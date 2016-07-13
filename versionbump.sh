@@ -100,6 +100,7 @@ function getVersion() {
 }
 
 function releaseVersion() {
+    isNumber='^[0-9]+$'
     versionType=$1
     previousVersion=$2
     currentVersion=$3
@@ -115,11 +116,23 @@ function releaseVersion() {
 
     echo -e ""
     echo -e "> ${green}Bumping version${normal}"
+
+    composerHasVersion=$(cat composer.json | grep -c "version")
+    if [[ $composerHasVersion =~ $isNumber ]] && [ $composerHasVersion -gt 0 ]
+    then
+        echo -e "  Also updating composer version"
+        echo -e ""
+
+        updateComposerVersion $currentVersion
+        git add composer.*
+        git commit -m "Bump composer version to $currentVersion"
+        git tag -a $currentVersion -m "$currentVersion"
+    fi
+
     echo -e "  Creating a new ${color}$versionType${normal} update. Current version is ${color}$currentVersion${normal} (previous was $previousVersion)"
 
     gitflowErrorCount=$(git flow release start ${currentVersion} 2> >(grep -c "There is an existing release branch"))
 
-    isNumber='^[0-9]+$'
     if [[ $gitflowErrorCount =~ $isNumber ]] && [ $gitflowErrorCount -gt 0 ]
     then
         echo -e ""
@@ -128,6 +141,7 @@ function releaseVersion() {
         git tag -a $currentVersion -m "$currentVersion"
         git flow release finish ${currentVersion}
 
+        echo -e ""
         echo -e "> ${green}Pushing changes${normal}"
         git push origin master --tags
         git checkout develop
@@ -136,4 +150,8 @@ function releaseVersion() {
         echo -e ""
         echo -e "> ${green}We're at version $currentVersion now. All done.${normal}"
     fi
+}
+
+function updateComposerVersion() {
+    sed -Ei '.bak' 's/\"version\":[[:space:]]*\"[0-9]*\.?[0-9]*\.?[0-9]*\"/\"version\": \"'$1'\"/' composer.json
 }
