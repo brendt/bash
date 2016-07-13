@@ -22,8 +22,8 @@ function getVersion() {
         tag='0.0.0'
     else
         tag=$(git describe --tag)
-
         IFS='.' read -ra version <<< "$tag"
+
         if [ ${#version[@]} -eq 3 ]
         then
             tag=${tag%-*}
