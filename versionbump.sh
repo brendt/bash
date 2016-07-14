@@ -132,7 +132,6 @@ function releaseVersion() {
         updateComposerVersion $currentVersion
         git add composer.*
         git commit -m "Bump composer version to $currentVersion"
-        git tag -a $currentVersion -m "$currentVersion"
     fi
 
     echo -e "  Creating a new ${color}$versionType${normal} update. Current version is ${color}$currentVersion${normal} (previous was $previousVersion)"
