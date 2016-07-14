@@ -66,7 +66,6 @@ function bumpVersion() {
         echo -e "> ${red}Git flow is not enabled${normal}"
     else
         action=$1
-        commitChanges
 
         if [ ! -f "CHANGELOG.md" ]
         then
@@ -75,6 +74,8 @@ function bumpVersion() {
             git add CHANGELOG.md
             git commit -m "Add CHANGELOG.md"
         fi
+
+        commitChanges
 
         previousVersion=$(version)
         IFS='.' read -ra version <<< "$previousVersion"
@@ -98,6 +99,7 @@ function bumpVersion() {
         changelogHasVersion=$(grep -c "${version}" "CHANGELOG.md")
         if [ $action == "major" ] && [ $changelogHasVersion == 0 ]
         then
+            echo -e ""
             echo -e "> ${red}No changelog entry found for this major version (${bumpedVersion}) in ${changelogFile}. Please add it first.${normal}"
         else
             releaseVersion $action $previousVersion $bumpedVersion
