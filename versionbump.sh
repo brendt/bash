@@ -13,7 +13,7 @@ function patch() {
     bumpVersion "patch"
 }
 
-function getVersion() {
+function version() {
     gitDescribeErrorCount=$(git describe 2> >(grep -c "fatal"))
 
     isNumber='^[0-9]+$'
@@ -76,7 +76,7 @@ function bumpVersion() {
             git commit -m "Add CHANGELOG.md"
         fi
 
-        previousVersion=$(getVersion)
+        previousVersion=$(version)
         IFS='.' read -ra version <<< "$previousVersion"
 
         case $action in
@@ -106,6 +106,9 @@ function bumpVersion() {
 }
 
 function releaseVersion() {
+    export GIT_MERGE_AUTOEDIT_BAK=$GIT_MERGE_AUTOEDIT
+    export GIT_MERGE_AUTOEDIT=no
+
     isNumber='^[0-9]+$'
     versionType=$1
     previousVersion=$2
@@ -155,6 +158,8 @@ function releaseVersion() {
         echo -e ""
         echo -e "> ${green}We're at version $currentVersion now. All done.${normal}"
     fi
+
+    export GIT_MERGE_AUTOEDIT=$GIT_MERGE_AUTOEDIT_BAK
 }
 
 function updateComposerVersion() {
