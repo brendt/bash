@@ -130,7 +130,7 @@ function releaseVersion() {
         echo -e ""
 
         updateComposerVersion $currentVersion
-        git add composer.*
+        git add composer.json
         git commit -m "Bump composer version to $currentVersion"
     fi
 
@@ -159,4 +159,5 @@ function releaseVersion() {
 
 function updateComposerVersion() {
     sed -Ei '.bak' 's/\"version\":[[:space:]]*\"[0-9]*\.?[0-9]*\.?[0-9]*\"/\"version\": \"'$1'\"/' composer.json
+    rm composer.json.bak 2> /dev/null
 }
