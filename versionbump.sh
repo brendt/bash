@@ -1,3 +1,5 @@
+# TODO: geen tag wanneer master up-to-date is met develop
+
 versionFile="composer.json"
 changelogFile="CHANGELOG.md"
 release=true
