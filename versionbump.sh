@@ -1,16 +1,33 @@
 versionFile="composer.json"
 changelogFile="CHANGELOG.md"
+release=false
 
 function major() {
+    checkRelease $1
     bumpVersion "major"
 }
 
 function minor() {
+    checkRelease $1
     bumpVersion "minor"
 }
 
 function patch() {
+    checkRelease $1
     bumpVersion "patch"
+}
+
+function checkRelease() {
+    if [ $# -eq 1 ]
+    then
+        if [ "$1" == '--release' ]
+        then
+            release=true
+        elif [ "$1" == '--no-release' ]
+        then
+            release=false
+        fi
+    fi
 }
 
 function version() {
@@ -40,7 +57,7 @@ function commitChanges() {
     echo -e "> ${green}Updating develop${normal}"
     git checkout develop
     git add -A
-    git commit -m "bump"
+    git commit -m "Comitting all open changes"
     git pull origin develop
 
     echo -e ""
@@ -130,41 +147,64 @@ function releaseVersion() {
 
     echo -e "  Creating a new ${color}$versionType${normal} update. Current version is ${color}$currentVersion${normal} (previous was $previousVersion)"
 
-    gitflowErrorCount=$(git flow release start ${currentVersion} 2> >(grep -c "There is an existing release branch"))
-
-    if [[ $gitflowErrorCount =~ $isNumber ]] && [ $gitflowErrorCount -gt 0 ]
+    # Start a release if requested
+    if [ $release == true ]
     then
         echo -e ""
-        echo -e "> ${red}There is an existing release branch, finish or delete that one first.${normal}"
-    else
-        composerHasVersion=$(cat composer.json | grep -c "version")
-        if [[ $composerHasVersion =~ $isNumber ]] && [ $composerHasVersion -gt 0 ]
+        echo -e "> ${green}Starting a release${normal}"
+        gitflowErrorCount=$(git flow release start ${currentVersion} 2> >(grep -c "There is an existing release branch"))
+
+        if [[ $gitflowErrorCount =~ $isNumber ]] && [ $gitflowErrorCount -gt 0 ]
         then
-            echo -e "  Also updating composer version"
             echo -e ""
-
-            updateComposerVersion $currentVersion
-            git add composer.json
-            git commit -m "Bump composer version to $currentVersion"
+            echo -e "> ${red}There is an existing release branch, finish or delete that one first.${normal}"
         fi
+    fi
 
-        git tag -a $currentVersion -m "$currentVersion"
+    # Bump the version
+    composerHasVersion=$(cat composer.json | grep -c "version")
+    if [[ $composerHasVersion =~ $isNumber ]] && [ $composerHasVersion -gt 0 ]
+    then
+        updateComposerVersion $currentVersion
+    fi
+
+    git tag -a $currentVersion -m "$currentVersion"
+
+    # Push the changes
+    if [ $release == true ]
+    then
         git flow release finish ${currentVersion}
-
+        git merge develop
         echo -e ""
         echo -e "> ${green}Pushing changes${normal}"
         git push origin master --tags
         git checkout develop
-        git push origin develop
-
+        git push origin develop --tags
+    else
         echo -e ""
-        echo -e "> ${green}We're at version $currentVersion now. All done.${normal}"
+        echo -e "> ${green}Pushing changes${normal}"
+        git push origin develop --tags
     fi
+
+    echo -e ""
+    echo -e "> ${green}We're at version $currentVersion now. All done.${normal}"
+
+    if [ $release == false ]
+    then
+        echo -e "> This update was not released to the master branch, run ${orange}${versionType} --release${normal} to release the next update."
+    fi
+
 
     export GIT_MERGE_AUTOEDIT=$GIT_MERGE_AUTOEDIT_BAK
 }
 
 function updateComposerVersion() {
+    echo -e "  Also updating composer version"
+    echo -e ""
+
     sed -Ei '.bak' 's/\"version\":[[:space:]]*\"[0-9]*\.?[0-9]*\.?[0-9]*\"/\"version\": \"'$1'\"/' composer.json
     rm composer.json.bak 2> /dev/null
+
+    git add composer.json
+    git commit -m "Bump composer version to $currentVersion"
 }
