@@ -1,6 +1,6 @@
 versionFile="composer.json"
 changelogFile="CHANGELOG.md"
-release=false
+release=true
 
 function major() {
     checkRelease $1
@@ -191,7 +191,7 @@ function releaseVersion() {
 
     if [ $release == false ]
     then
-        echo -e "> This update was not released to the master branch, run ${orange}${versionType} --release${normal} to release the next update."
+        echo -e "> This update was not released to the master branch, run ${orange}${versionType}${normal} to release the next update."
     fi
 
 
