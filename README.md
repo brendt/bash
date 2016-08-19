@@ -23,3 +23,9 @@ Ech will create a version update respectively their name. By default, these comm
 - Create a new release branch and merge it into master.
 
 There's the ``--no-release`` option to prevent the last step from happening. Which is useful in early development, to create patch of minor updates without merging them into master.
+
+## Git aliases
+
+```
+alias.lg=log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+```
