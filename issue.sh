@@ -27,7 +27,17 @@ function issue_start {
 
 function issue_finish {
     project=$(pwd | sed -E 's/\/sites\///' | sed -E 's/\/htdocs//' | awk '{print toupper($0)}')
-    git flow feature finish $project-$1
+
+    git add -A
+    git commit -m "Cleanup"
+    git checkout develop
+    git pull origin develop
+    git checkout feature/$project-$1
+    git merge develop
+    git checkout develop
+    git merge --squash feature/$project-$1
+    git commit -m $project-$1
+    git branch -d feature/$project-$1
 }
 
 function issue_switch {
