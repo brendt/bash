@@ -1,32 +1,68 @@
-function issue {
-    if [ -z "${1// }" ] || [ -z "${2// }" ]
+function project {
+    project=$(cat composer.json | grep name | sed -E 's/.*\///' | sed -E 's/\",?//' | awk '{print toupper($0)}')
+
+    if [ -z $project ];
     then
-        echo -e Usage: issue \<start\|finish\|switch\> \<issue number\>
+        project=$(pwd | sed -E 's/.*(www\/|sites\/)//' | sed -E 's/\/htdocs//' | awk '{print toupper($0)}')
+    fi
+
+    echo $project
+}
+
+function issue {
+    isNumber='^[0-9]+$'
+
+    if [ -z "${1// }" ]
+    then
+        echo -e Usage: issue \[start\|s\|finish\|f\|switch\|sw\] \<issue number\>
     else
-        case $1 in
-        start)
-            issue_start $2
-            ;;
-        finish)
-            issue_finish $2
-            ;;
-        switch)
-            issue_switch $2
-            ;;
-        *)
-            echo -e Usage: issue \<start\|finish\|switch\> \<issue number\>
-            ;;
-        esac
+        if [[ $1 =~ $isNumber ]]
+        then
+            project=$(project)
+            isExistingBranch=$(git branch -l | grep -c $project-$1)
+
+            if [[ $isExistingBranch =~ $isNumber ]] && [ $isExistingBranch -gt 0 ]
+            then
+                issue_switch $1
+            else
+                issue_start $1
+            fi
+        else
+            case $1 in
+            start)
+                issue_start $2
+                ;;
+            s)
+                issue_start $2
+                ;;
+            finish)
+                issue_finish $2
+                ;;
+            f)
+                issue_finish $2
+                ;;
+            switch)
+                issue_switch $2
+                ;;
+            sw)
+                issue_switch $2
+                ;;
+            *)
+                echo -e Usage: issue \[start\|s\|finish\|f\|switch\|sw\] \<issue number\>
+                ;;
+            esac
+        fi
     fi
 }
 
 function issue_start {
-    project=$(pwd | sed -E 's/\/sites\///' | sed -E 's/\/htdocs//' | awk '{print toupper($0)}')
+    project=$(project)
+
     git flow feature start $project-$1
 }
 
 function issue_finish {
-    project=$(pwd | sed -E 's/\/sites\///' | sed -E 's/\/htdocs//' | awk '{print toupper($0)}')
+    project=$(project)
 
     git add -A
     git commit -m "Cleanup"
@@ -41,6 +77,7 @@ function issue_finish {
 }
 
 function issue_switch {
-    project=$(pwd | sed -E 's/\/sites\///' | sed -E 's/\/htdocs//' | awk '{print toupper($0)}')
+    project=$(project)
+
     git checkout feature/$project-$1
 }
