@@ -1,5 +1,5 @@
 function project {
-    project=$(cat composer.json | grep name | sed -E 's/.*\///' | sed -E 's/\",?//' | awk '{print toupper($0)}')
+    project=$(cat composer.json | grep -m 1 name | sed -E 's/.*\///' | sed -E 's/\",?//' | awk '{print toupper($0)}')
 
     if [ -z $project ];
     then
