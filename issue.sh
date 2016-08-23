@@ -73,7 +73,6 @@ function issue_finish {
     git checkout develop
     git merge --squash feature/$project-$1
     git commit -m $project-$1
-    git branch -d feature/$project-$1
 }
 
 function issue_switch {
