@@ -29,6 +29,12 @@ function issue {
             fi
         else
             case $1 in
+            get)
+                issue_get
+                ;;
+            number)
+                issue_get
+                ;;
             start)
                 issue_start $2
                 ;;
@@ -39,6 +45,9 @@ function issue {
                 issue_finish $2
                 ;;
             f)
+                issue_finish $2
+                ;;
+            done)
                 issue_finish $2
                 ;;
             switch)
@@ -55,6 +64,10 @@ function issue {
     fi
 }
 
+function issue_get {
+    echo $(git branch 2>/dev/null | grep '*' | sed "s/.*$(project)-//")
+}
+
 function issue_start {
     project=$(project)
 
@@ -63,16 +76,22 @@ function issue_start {
 
 function issue_finish {
     project=$(project)
+    issue=$1
+
+    if [ !$issue ]
+    then
+        issue=$(issue_get)
+    fi
 
     git add -A
     git commit -m "Cleanup"
     git checkout develop
     git pull origin develop
-    git checkout feature/$project-$1
+    git checkout feature/$project-$issue
     git merge develop
     git checkout develop
-    git merge --squash feature/$project-$1
-    git commit -m $project-$1
+    git merge --squash feature/$project-$issue
+    git commit -m $project-$issue
 }
 
 function issue_switch {
