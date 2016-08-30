@@ -9,7 +9,7 @@ function git_ps1 {
     branch=$(git branch 2>/dev/null | grep '*' | sed 's/* \(.*\)/\1/')
     tag=$(version)
 
-    if [ $branch ]
+    if [[ $branch ]]
     then
         if [ $tag == "0.0.0" ]
         then
