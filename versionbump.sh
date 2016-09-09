@@ -40,7 +40,7 @@ function version() {
     then
         tag=$(composerVersion)
     else
-        tag=$(git describe --tag | sed -E "s/-.*//")
+        tag=$(git describe --tags --abbrev=0)
     fi
 
     echo $tag
@@ -79,10 +79,7 @@ function commitChanges() {
 }
 
 function bumpVersion() {
-    if [ ! -f "$versionFile" ];
-    then
-        echo -e "> ${red}No ${versionFile} found${normal}"
-    elif [ ! -d ".git" ];
+    if [ ! -d ".git" ];
     then
         echo -e "> ${red}No git repository found${normal}"
     elif ! grep --quiet gitflow .git/config
@@ -120,7 +117,7 @@ function bumpVersion() {
             ;;
         esac
 
-        bumpedVersion=${currentVersion[0]}.${currentVersion[1]}.${currentVersion[2]}
+        bumpedVersion="${currentVersion[0]}.${currentVersion[1]}.${currentVersion[2]}"
         changelogHasVersion=$(grep -c "${currentVersion}" "CHANGELOG.md")
         if [ $action == "major" ] && [ $changelogHasVersion == 0 ]
         then
@@ -133,8 +130,9 @@ function bumpVersion() {
 }
 
 function releaseVersion() {
+    git checkout develop
     export GIT_MERGE_AUTOEDIT_BAK=$GIT_MERGE_AUTOEDIT
-    export GIT_MERGE_AUTOEDIT=no
+    export GIT_MERGE_AUTOEDIT=yes
 
     isNumber='^[0-9]+$'
     versionType=$1
@@ -152,22 +150,7 @@ function releaseVersion() {
 
     echo -e ""
     echo -e "> ${green}Bumping version${normal}"
-
     echo -e "  Creating a new ${color}$versionType${normal} update. Current version is ${color}$currentVersion${normal} (previous was $previousVersion)"
-
-    # Start a release if requested
-    if [ $release == true ]
-    then
-        echo -e ""
-        echo -e "> ${green}Starting a release${normal}"
-        gitflowErrorCount=$(git flow release start ${currentVersion} 2> >(grep -c "There is an existing release branch"))
-
-        if [[ $gitflowErrorCount =~ $isNumber ]] && [ $gitflowErrorCount -gt 0 ]
-        then
-            echo -e ""
-            echo -e "> ${red}There is an existing release branch, finish or delete that one first.${normal}"
-        fi
-    fi
 
     # Bump the version
     composerHasVersion=$(cat composer.json | grep -c "version")
@@ -179,19 +162,15 @@ function releaseVersion() {
     git tag -a $currentVersion -m "$currentVersion"
 
     # Push the changes
+    echo -e ""
+    echo -e "> ${green}Pushing changes${normal}"
+    git push origin develop --tags
+
     if [ $release == true ]
     then
-        git flow release finish ${currentVersion}
+        git checkout master
         git merge develop
-        echo -e ""
-        echo -e "> ${green}Pushing changes${normal}"
         git push origin master --tags
-        git checkout develop
-        git push origin develop --tags
-    else
-        echo -e ""
-        echo -e "> ${green}Pushing changes${normal}"
-        git push origin develop --tags
     fi
 
     echo -e ""
@@ -201,7 +180,6 @@ function releaseVersion() {
     then
         echo -e "> This update was not released to the master branch, run ${orange}${versionType}${normal} to release the next update."
     fi
-
 
     export GIT_MERGE_AUTOEDIT=$GIT_MERGE_AUTOEDIT_BAK
 }
