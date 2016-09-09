@@ -71,7 +71,7 @@ function issue_get {
 function issue_start {
     project=$(project)
 
-    git flow feature start $project-$1
+    git checkout -b $project-$1 develop
 }
 
 function issue_finish {
@@ -87,15 +87,15 @@ function issue_finish {
     git commit -m "Cleanup"
     git checkout develop
     git pull origin develop
-    git checkout feature/$project-$issue
+    git checkout $project-$issue
     git merge develop
     git checkout develop
-    git merge --squash feature/$project-$issue
-    git commit -m $project-$issue
+    git merge --no-ff $project-$issue -m "Finish $project-$issue: merged into develop"
+    git branch -d $project-$issue
 }
 
 function issue_switch {
     project=$(project)
 
-    git checkout feature/$project-$1
+    git checkout $project-$1
 }

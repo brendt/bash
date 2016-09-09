@@ -159,7 +159,11 @@ function releaseVersion() {
         updateComposerVersion $currentVersion
     fi
 
+    git checkout master
+    git merge --no-ff develop
     git tag -a $currentVersion -m "$currentVersion"
+    git checkout develop
+    git merge $currentVersion
 
     # Push the changes
     echo -e ""
@@ -169,7 +173,6 @@ function releaseVersion() {
     if [ $release == true ]
     then
         git checkout master
-        git merge develop
         git push origin master --tags
         git checkout develop
     fi
