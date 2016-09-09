@@ -38,7 +38,13 @@ function version() {
     isNumber='^[0-9]+$'
     if [[ $gitDescribeErrorCount =~ $isNumber ]] && [ $gitDescribeErrorCount -gt 0 ]
     then
-        tag='0.0.0'
+        composerHasVersion=$(cat composer.json | grep -c "version")
+        if [[ $composerHasVersion =~ $isNumber ]] && [ $composerHasVersion -gt 0 ]
+        then
+            tag=$(cat composer.json | grep version | sed -E "s/.*version\":[[:space:]]\"//" | sed -E "s/\", ?//")
+        else
+            tag='0.0.0'
+        fi
     else
         tag=$(git describe --tag)
         IFS='.' read -ra version <<< "$tag"
