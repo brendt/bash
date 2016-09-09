@@ -43,6 +43,12 @@ function version() {
         tag=$(git describe --tags --abbrev=0)
     fi
 
+    isTag='^[0-9]+\.[0-9]+\.[0-9]+$'
+    if ! [[ $tag =~ $isTag ]]
+    then
+        tag='0.0.0'
+    fi
+
     echo $tag
 }
 
