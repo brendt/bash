@@ -33,17 +33,14 @@ function checkRelease() {
 }
 
 function version() {
-    gitDescribeErrorCount=$(git describe 2> >(grep -c "fatal"))
-    isNumber='^[0-9]+$'
+    isTag='^[0-9]+\.[0-9]+\.[0-9]+$'
+    tag=$(git describe --tags --abbrev=0)
 
-    if [[ $gitDescribeErrorCount =~ $isNumber ]] && [ $gitDescribeErrorCount -gt 0 ]
+    if ! [[ $tag =~ $isTag ]]
     then
         tag=$(composerVersion)
-    else
-        tag=$(git describe --tags --abbrev=0)
     fi
 
-    isTag='^[0-9]+\.[0-9]+\.[0-9]+$'
     if ! [[ $tag =~ $isTag ]]
     then
         tag='0.0.0'
