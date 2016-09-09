@@ -34,22 +34,13 @@ function checkRelease() {
 
 function version() {
     gitDescribeErrorCount=$(git describe 2> >(grep -c "fatal"))
-
     isNumber='^[0-9]+$'
+
     if [[ $gitDescribeErrorCount =~ $isNumber ]] && [ $gitDescribeErrorCount -gt 0 ]
     then
         tag=$(composerVersion)
     else
-        tag=$(git describe --tag)
-        IFS='.' read -ra version <<< "$tag"
-
-        if [ ${#version[@]} -eq 3 ]
-        then
-            tag=${tag%-*}
-            tag=${tag%-*}
-        else
-            tag=$(composerVersion)
-        fi
+        tag=$(git describe --tag | sed -E "s/-.*//")
     fi
 
     echo $tag
@@ -57,7 +48,7 @@ function version() {
 
 function composerVersion() {
     isNumber='^[0-9]+$'
-    composerHasVersion=$(cat composer.json | grep -c "version")
+    composerHasVersion=$(cat composer.json 2> /dev/null | grep -c "version")
 
     if [[ $composerHasVersion =~ $isNumber ]] && [ $composerHasVersion -gt 0 ]
     then
@@ -111,25 +102,26 @@ function bumpVersion() {
         commitChanges
 
         previousVersion=$(version)
-        IFS='.' read -ra version <<< "$previousVersion"
+        set -f
+        currentVersion=(${previousVersion//./ })
 
         case $action in
         "major")
-            ((version[0]++))
-            ((version[1]=0))
-            ((version[2]=0))
+            ((currentVersion[0]++))
+            ((currentVersion[1]=0))
+            ((currentVersion[2]=0))
             ;;
         "minor")
-            ((version[1]++))
-            ((version[2]=0))
+            ((currentVersion[1]++))
+            ((currentVersion[2]=0))
             ;;
         "patch")
-            ((version[2]++))
+            ((currentVersion[2]++))
             ;;
         esac
 
-        bumpedVersion=${version[0]}.${version[1]}.${version[2]}
-        changelogHasVersion=$(grep -c "${version}" "CHANGELOG.md")
+        bumpedVersion=${currentVersion[0]}.${currentVersion[1]}.${currentVersion[2]}
+        changelogHasVersion=$(grep -c "${currentVersion}" "CHANGELOG.md")
         if [ $action == "major" ] && [ $changelogHasVersion == 0 ]
         then
             echo -e ""
