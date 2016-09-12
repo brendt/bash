@@ -34,7 +34,7 @@ function checkRelease() {
 
 function version() {
     isTag='^[0-9]+\.[0-9]+\.[0-9]+$'
-    tag=$(git describe --tags --abbrev=0)
+    tag=$(git describe --tags --abbrev=0 --always)
 
     if ! [[ $tag =~ $isTag ]]
     then
