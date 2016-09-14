@@ -84,7 +84,7 @@ function issue_finish {
     fi
 
     git add -A
-    git commit -m "Comitting all open changes"
+    git commit -m "$project-$issue: done"
     git checkout develop
     git pull origin develop
     git checkout feature/$project-$issue
