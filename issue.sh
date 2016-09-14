@@ -19,7 +19,7 @@ function issue {
         if [[ $1 =~ $isNumber ]]
         then
             project=$(project)
-            isExistingBranch=$(git branch -l | grep -c $project-$1)
+            isExistingBranch=$(git branch -l | grep -c feature/$project-$1)
 
             if [[ $isExistingBranch =~ $isNumber ]] && [ $isExistingBranch -gt 0 ]
             then
@@ -71,7 +71,7 @@ function issue_get {
 function issue_start {
     project=$(project)
 
-    git checkout -b $project-$1 develop
+    git checkout -b feature/$project-$1 develop
 }
 
 function issue_finish {
@@ -87,15 +87,15 @@ function issue_finish {
     git commit -m "Cleanup"
     git checkout develop
     git pull origin develop
-    git checkout $project-$issue
+    git checkout feature/$project-$issue
     git merge develop
     git checkout develop
-    git merge --no-ff $project-$issue -m "Finish $project-$issue: merged into develop"
-    git branch -d $project-$issue
+    git merge --no-ff feature/$project-$issue -m "Finish $project-$issue: merged into develop"
+    git branch -d feature/$project-$issue
 }
 
 function issue_switch {
     project=$(project)
 
-    git checkout $project-$1
+    git checkout feature/$project-$1
 }
