@@ -90,7 +90,7 @@ function issue_finish {
     git checkout feature/$project-$issue
     git merge develop
     git checkout develop
-    git merge --no-ff feature/$project-$issue -m "Finish $project-$issue: merged into develop"
+    git merge --no-ff feature/$project-$issue -m "$project-$issue: merged into develop"
     git branch -d feature/$project-$issue
 }
 
