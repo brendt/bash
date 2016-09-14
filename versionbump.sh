@@ -163,7 +163,7 @@ function releaseVersion() {
     fi
 
     git checkout master
-    git merge --no-ff develop
+    git merge --no-ff develop -m "$currentVersion"
     git tag -a $currentVersion -m "$currentVersion"
     git checkout develop
     git merge $currentVersion
