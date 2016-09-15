@@ -20,12 +20,12 @@ function patch() {
 }
 
 function checkRelease() {
-    if [ $# -eq 1 ]
+    if [[ $# -eq 1 ]]
     then
-        if [ "$1" == '--release' ]
+        if [[ "$1" == '--release' ]]
         then
             release=true
-        elif [ "$1" == '--no-release' ]
+        elif [[ "$1" == '--no-release' ]]
         then
             release=false
         fi
@@ -82,7 +82,7 @@ function commitChanges() {
 }
 
 function bumpVersion() {
-    if [ ! -d ".git" ];
+    if [[ ! -d ".git" ]];
     then
         echo -e "> ${red}No git repository found${normal}"
     elif ! grep --quiet gitflow .git/config
@@ -91,7 +91,7 @@ function bumpVersion() {
     else
         action=$1
 
-        if [ ! -f "CHANGELOG.md" ]
+        if [[ ! -f "CHANGELOG.md" ]]
         then
             touch CHANGELOG.md
             echo "# Changelog" > CHANGELOG.md
@@ -122,7 +122,7 @@ function bumpVersion() {
 
         bumpedVersion="${currentVersion[0]}.${currentVersion[1]}.${currentVersion[2]}"
         changelogHasVersion=$(grep -c "${currentVersion}" "CHANGELOG.md")
-        if [ $action == "major" ] && [ $changelogHasVersion == 0 ]
+        if [[ $action == "major" ]] && [[ $changelogHasVersion == 0 ]]
         then
             echo -e ""
             echo -e "> ${red}No changelog entry found for this major version (${bumpedVersion}) in ${changelogFile}. Please add it first.${normal}"
@@ -143,11 +143,11 @@ function releaseVersion() {
     currentVersion=$3
     color=${red}
 
-    if [ "$versionType" == "patch" ]; then
+    if [[ "$versionType" == "patch" ]]; then
         color=${green}
     fi
 
-    if [ "$versionType" == "minor" ]; then
+    if [[ "$versionType" == "minor" ]]; then
         color=${orange}
     fi
 
@@ -157,7 +157,7 @@ function releaseVersion() {
 
     # Bump the version
     composerHasVersion=$(cat composer.json | grep -c "version")
-    if [[ $composerHasVersion =~ $isNumber ]] && [ $composerHasVersion -gt 0 ]
+    if [[ $composerHasVersion =~ $isNumber ]] && [[ $composerHasVersion -gt 0 ]]
     then
         updateComposerVersion $currentVersion
     fi
@@ -173,7 +173,7 @@ function releaseVersion() {
     echo -e "> ${green}Pushing changes${normal}"
     git push origin develop --tags
 
-    if [ $release == true ]
+    if [[ $release == true ]]
     then
         git checkout master
         git push origin master --tags
@@ -183,7 +183,7 @@ function releaseVersion() {
     echo -e ""
     echo -e "> ${green}We're at version $currentVersion now. All done.${normal}"
 
-    if [ $release == false ]
+    if [[ $release == false ]]
     then
         echo -e "> This update was not released to the master branch, run ${orange}${versionType}${normal} to release the next update."
     fi
