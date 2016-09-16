@@ -24,7 +24,7 @@ PS1="${bold_cyan}(\h)${reset} \u ${bold_cyan}\w \$(git_ps1)${reset}"
 # PS1="${bold_cyan}(\h)${reset} \u ${bold_cyan}\w\$(get_git_color) \$(__git_ps1)${reset} "
 
 export CLICOLOR=1
-export LSCOLORS=cxBxDxCxegedabagacaC
+# export LSCOLORS=cxBxDxCxegedabagacaC
 
 bind '"\e[A":history-search-backward'
 bind '"\e[B":history-search-forward'
