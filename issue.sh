@@ -88,7 +88,7 @@ function issue_finish {
     git checkout develop
     git pull origin develop
     git checkout feature/$project-$issue
-    git merge develop
+    git merge develop --no-commit --ff-only
     git checkout develop
     git merge --no-ff feature/$project-$issue -m "$project-$issue: merged into develop"
     git branch -d feature/$project-$issue
