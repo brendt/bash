@@ -56,6 +56,9 @@ function issue {
             sw)
                 issue_switch $2
                 ;;
+            close)
+                issue_close $2
+                ;;
             *)
                 echo -e Usage: issue \[start\|s\|finish\|f\|switch\|sw\] \<issue number\>
                 ;;
@@ -91,6 +94,21 @@ function issue_finish {
     git merge develop --no-commit --ff-only
     git checkout develop
     git merge --no-ff feature/$project-$issue -m "$project-$issue: merged into develop"
+    git branch -d feature/$project-$issue
+}
+
+function issue_close {
+    project=$(project)
+    issue=$1
+
+    if [ !$issue ]
+    then
+        issue=$(issue_get)
+    fi
+
+    git reset --hard
+    git clean -f
+    git checkout develop
     git branch -d feature/$project-$issue
 }
 
